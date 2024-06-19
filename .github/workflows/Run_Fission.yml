@@ -10,34 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: 检出代码仓库
       uses: actions/checkout@v2
 
-    - name: Set up Python
+    - name: 设置 Python 环境
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
 
-    - name: Install dependencies
+    - name: 安装依赖
       run: pip install -r requirements.txt
 
-    - name: Run Fission script
+    - name: 运行裂变脚本
       run: python Fission.py
 
-    - name: Remove duplicates and empty lines
+    - name: 去重及清理空行
       run: |
         awk '!seen[$0]++' Fission_domain.txt | sed '/^$/d' | sort > temp_domain.txt && mv temp_domain.txt Fission_domain.txt
         awk '!seen[$0]++' Fission_ip.txt | sed '/^$/d' | sort > temp_ip.txt
 
-    - name: Install mmdb-bin
+    - name: 安装 mmdb-bin 工具
       run: sudo apt-get install -y mmdb-bin wget
 
-    - name: Download GeoLite2-ASN.mmdb
+    - name: 下载 GeoLite.mmdb 数据库
       run: |
         wget https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb -O GeoLite2-ASN.mmdb
         wget https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb -O GeoLite2-Country.mmdb
 
-    - name: Classify IP addresses
+    - name: IP 地址分类
       run: |
         > Fission_ip.txt
         > Fission_cf.txt
@@ -52,12 +52,12 @@ jobs:
                 echo "$line" >> Fission_ip.txt
               fi
             else
-              echo "ASN lookup failed for IP: $ip" >&2
+              echo "ASN 查询失败，IP: $ip" >&2
             fi
           fi
         done < temp_ip.txt
 
-    - name: ip2cc
+    - name: 生成 IP 地址对应国家代码
       run: |
           > Fission_ip2cc.txt
           while IFS= read -r line
@@ -67,11 +67,23 @@ jobs:
             echo "$line#$country_code" >> Fission_ip2cc.txt
           done < Fission_ip.txt
 
-    - name: Commit and Push
+    - name: 分离域名文件
+      run: |
+        > Fission_domain_http.txt
+        > Fission_domain_https.txt
+        while IFS= read -r line; do
+          if echo "$line" | grep -qE "80\.|8080|8880|2052|2082|2086|2095"; then
+            echo "$line" >> Fission_domain_http.txt
+          else
+            echo "$line" >> Fission_domain_https.txt
+          fi
+        done < Fission_domain.txt
+
+    - name: 提交并推送更改
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add Fission_ip.txt Fission_cf.txt Fission_domain.txt Fission_ip2cc.txt
-        git commit -m "Processed files on $(date "+%Y/%m/%d %H:%M:%S")"
+        git add Fission_cf.txt Fission_ip.txt Fission_ip2cc.txt Fission_domain.txt Fission_domain_http.txt Fission_domain_https.txt
+        git commit -m "🚀 更新完成于 $(date "+%Y/%m/%d %H:%M:%S")"
         git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{github.repository}}.git
         git push
