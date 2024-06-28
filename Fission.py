@@ -20,7 +20,7 @@ DOMAINS_FILE = "Fission_domain.txt"
 DNS_RESULT_FILE = "dns_result.txt"
 
 # 文件行数限制
-MAX_LINES = 500
+MAX_LINES = 1000
 
 # 并发数配置
 MAX_WORKERS_REQUEST = 20   # 并发请求数量
