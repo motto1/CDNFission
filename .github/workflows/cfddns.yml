@@ -2,11 +2,8 @@ name: cfddns上传
 
 on:
   workflow_dispatch: # Putting here is also fine!!
-  push:
-    branches: 
-      - main
   schedule:
-    - cron: '0 17 * * *'  # 每天 UTC 时间的 0:00 执行一次，你可以根据需要调整 cron 表达式
+    - cron: '0 18 * * *'  # 每天 UTC 时间的 0:00 执行一次，你可以根据需要调整 cron 表达式
 
 jobs:
   build:
