@@ -14,13 +14,13 @@ import requests
 # 配置日志记录
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# 文件配置
+# 文件配置和行数限制更新
 IPS_FILE = "Fission_ip.txt"
 DOMAINS_FILE = "Fission_domain.txt"
 DNS_RESULT_FILE = "dns_result.txt"
 
-# 文件行数限制
-MAX_LINES = 1000
+MAX_LINES_IPS = 1500   # IP文件行数限制
+MAX_LINES_DOMAINS = 500   # 域名文件行数限制
 
 # 并发数配置
 MAX_WORKERS_REQUEST = 20   # 并发请求数量
@@ -150,13 +150,13 @@ def perform_dns_lookups(domain_filename, result_filename, unique_ipv4_filename):
     except Exception as e:
         logging.error(f"Error performing DNS lookups: {e}")
 
-def limit_file_size(filename, new_lines):
+def limit_file_size(filename, new_lines, max_lines):
     with open(filename, 'r') as file:
         existing_lines = file.readlines()
     
     combined_lines = existing_lines + [line + "\n" for line in new_lines]
-    if len(combined_lines) > MAX_LINES:
-        combined_lines = combined_lines[-MAX_LINES:]
+    if len(combined_lines) > max_lines:
+        combined_lines = combined_lines[-max_lines:]
     
     with open(filename, 'w') as file:
         file.writelines(combined_lines)
@@ -181,13 +181,15 @@ def main():
 
     domain_list = list(set(domain_list + exist_list))
 
-    limit_file_size(DOMAINS_FILE, domain_list)
+    # 更新文件限制
+    limit_file_size(DOMAINS_FILE, domain_list, MAX_LINES_DOMAINS)
     logging.info("IP -> 域名 已完成")
 
     perform_dns_lookups(DOMAINS_FILE, DNS_RESULT_FILE, IPS_FILE)
     logging.info("域名 -> IP 已完成")
 
-    limit_file_size(IPS_FILE, ip_list)
+    # 更新文件限制
+    limit_file_size(IPS_FILE, ip_list, MAX_LINES_IPS)
 
 if __name__ == '__main__':
     main()
