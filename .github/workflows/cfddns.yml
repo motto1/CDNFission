@@ -26,5 +26,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests urllib3
 
-      - name: Run Python script1
-        run: python cfupload.py  # 替换为你的 Python 脚本的路径
+      - name: 更新jp
+        run: python jpupload.py  # 替换为你的 Python 脚本的路径
+
+      - name: 更新hk
+        run: python hkupload.py  # 替换为你的 Python 脚本的路径
