@@ -85,5 +85,5 @@ jobs:
         git config --local user.name "GitHub Action"
         git add Fission_cf.txt Fission_ip.txt Fission_ip2cc.txt Fission_domain.txt Fission_domain_http.txt Fission_domain_https.txt
         git commit -m "🚀 更新完成于 $(date "+%Y/%m/%d %H:%M:%S")"
-        git remote set-url origin https://x-access-token:${{ secrets.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 }}@github.com/motto1/CDNFissionopen.git
+        git remote set-url origin https://x-access-token:${{ secrets.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 }}@github.com/${{github.repository}}.git
         git push
