@@ -5,8 +5,8 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 # Cloudflare API 参数
-api_token = "_HzyXGKwpxkk2yaGcBY0eA60_W-iIzgy7T-Q58yX"
-zone_id = "2541bc47a720a6554e1d1f4244ac57ad"
+api_token = os.getenv('CF_API_TOKEN')
+zone_id = os.getenv('CF_ZONE_ID')
 subdomain = "hk.2116666.xyz"  # 您的二级域名
 
 # Cloudflare API 端点
@@ -23,7 +23,7 @@ github_repo_api_url = 'https://api.github.com/repos/motto1/CDNFission/contents/'
 file_name = 'hk.csv'
 
 # GitHub Personal Access Token (PAT)
-github_token = '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'
+github_token = os.getenv('GH_TOKEN')
 
 # 定义会话，并设置重试策略
 session = requests.Session()
