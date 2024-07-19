@@ -19,8 +19,8 @@ IPS_FILE = "Fission_ip.txt"
 DOMAINS_FILE = "Fission_domain.txt"
 DNS_RESULT_FILE = "dns_result.txt"
 
-MAX_LINES_IPS = 3000   # IP文件行数限制
-MAX_LINES_DOMAINS = 1000   # 域名文件行数限制
+MAX_LINES_IPS = 2500   # IP文件行数限制
+MAX_LINES_DOMAINS = 700   # 域名文件行数限制
 
 # 并发数配置
 MAX_WORKERS_REQUEST = 20   # 并发请求数量
