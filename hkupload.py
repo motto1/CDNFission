@@ -69,7 +69,7 @@ def download_and_save_csv(url, save_path):
     }
     response = make_request("GET", url, headers=headers)
     if response:
-        content = response.text
+        content = response.content.decode('utf-8')
         with open(save_path, 'w', newline='', encoding='utf-8') as csvfile:
             csvfile.write(content)
         print(f"数据已保存到 {save_path}")
@@ -111,7 +111,7 @@ def main():
             delete_dns_record(record['id'])
         
         # 下载并保存新的CSV文件
-        file_url = os.path.join(github_repo_api_url, file_name)
+        file_url = f"{github_repo_api_url}{file_name}"
         download_and_save_csv(file_url, file_name)
         
         # 从 CSV 文件中添加前三个 DNS 记录
