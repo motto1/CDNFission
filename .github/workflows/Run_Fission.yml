@@ -20,7 +20,9 @@ jobs:
 
     - name: 安装依赖
       run: pip install -r requirements.txt
-           pip install geoip2
+      
+    - name: 安装依赖
+      run: pip install geoip2
 
     - name: 运行裂变脚本
       run: python Fission.py
