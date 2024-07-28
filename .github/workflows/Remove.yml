@@ -1,0 +1,19 @@
+name: Remove CN IPs
+
+on:
+  push:
+    branches:
+      - main # 可以根据实际情况调整触发条件
+
+jobs:
+  remove_cn_ips_job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Run Python script
+      run: |
+        python3 remove_cn_ips.py # 如果脚本名称不是 remove_cn_ips.py，请将此处替换为实际的脚本名称
+
