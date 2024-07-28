@@ -1,3 +1,18 @@
+为了确保最终生成的IP地址不包含中国的IP，可以在DNS查询结果中筛选掉中国的IP地址。通常，这可以通过使用IP地理位置数据库（如IP2Location、MaxMind GeoIP等）来完成。你可以在DNS查找完成后，使用这些数据库来检查每个IP地址的地理位置信息，并过滤掉位于中国的IP地址。
+
+以下是一个示例，展示如何在现有代码基础上添加这一功能。我们将使用`geoip2`库来检查IP地址的地理位置。请确保你安装了该库以及相关的GeoLite2数据库。
+
+### 安装依赖
+
+首先，确保安装`geoip2`库和下载GeoLite2数据库：
+
+```sh
+pip install geoip2
+```
+
+然后，从MaxMind网站下载免费的GeoLite2数据库：https://dev.maxmind.com/geoip/geoip2/geolite2/
+
+
 import os
 import re
 import random
@@ -10,6 +25,7 @@ from urllib3.util.retry import Retry
 from lxml import etree
 from fake_useragent import UserAgent
 import requests
+import geoip2.database
 
 # 配置日志记录
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,6 +44,9 @@ MAX_WORKERS_DNS = 50       # 并发DNS查询数量
 
 # 生成随机User-Agent
 ua = UserAgent()
+
+# GeoLite2数据库路径
+GEOIP_DB_PATH = "GeoLite2-Country.mmdb"
 
 # 网站配置
 SITES_CONFIG = {
@@ -113,6 +132,23 @@ def dns_lookup(domain):
     result = subprocess.run(["nslookup", domain], capture_output=True, text=True)
     return domain, result.stdout
 
+def filter_non_chinese_ips(ip_addresses):
+    reader = geoip2.database.Reader(GEOIP_DB_PATH)
+    non_chinese_ips = []
+
+    for ip in ip_addresses:
+        try:
+            response = reader.country(ip)
+            if response.country.iso_code != "CN":
+                non_chinese_ips.append(ip)
+        except geoip2.errors.AddressNotFoundError:
+            non_chinese_ips.append(ip)
+        except Exception as e:
+            logging.error(f"Error checking IP {ip}: {e}")
+
+    reader.close()
+    return non_chinese_ips
+
 def perform_dns_lookups(domain_filename, result_filename, unique_ipv4_filename):
     try:
         with open(domain_filename, 'r') as file:
@@ -142,6 +178,7 @@ def perform_dns_lookups(domain_filename, result_filename, unique_ipv4_filename):
                 continue
         
         filtered_ipv4_addresses.update(exist_list)
+        filtered_ipv4_addresses = filter_non_chinese_ips(filtered_ipv4_addresses)
 
         with open(unique_ipv4_filename, 'w') as output_file:
             for address in filtered_ipv4_addresses:
@@ -193,3 +230,13 @@ def main():
 
 if __name__ == '__main__':
     main()
+```
+
+### 说明
+
+1. **安装`geoip2`库：** 该库用于读取GeoLite2数据库并查询IP地址的地理位置。
+2. **下载GeoLite2数据库：** 从MaxMind网站下载GeoLite2数据库，并将其路径设置为`GEOIP_DB_PATH`。
+3. **`filter_non_chinese_ips`函数：** 该函数使用GeoLite2数据库过滤掉中国的IP地址。
+4. **在`perform_dns_lookups`函数中调用`filter_non_chinese_ips`函数：** 在DNS查找完成后，调用此函数来过滤掉中国的IP地址。
+
+请确保你已经安装了必要的库，并正确配置了GeoLite2数据库的路径。运行此代码后，生成的IP列表将排除中国的IP地址。
