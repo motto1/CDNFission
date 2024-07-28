@@ -1,9 +1,9 @@
 name: Remove CN IPs
 
 on:
-  push:
-    branches:
-      - main # 可以根据实际情况调整触发条件
+  schedule:
+    - cron: '0 0 */2 * *'
+  workflow_dispatch:
 
 jobs:
   remove_cn_ips_job:
