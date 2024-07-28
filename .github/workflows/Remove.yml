@@ -13,7 +13,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       
-    - name: Run Python script
-      run: |
-        python3 remove_cn_ips.py # 如果脚本名称不是 remove_cn_ips.py，请将此处替换为实际的脚本名称
-
+- name: 生成 IP 地址对应国家代码
+  run: |
+      > Fission_ip2cc.txt
+      while IFS= read -r line
+      do
+        ip=$(echo "$line" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+        country_code=$(mmdblookup --file GeoLite2-Country.mmdb --ip "$ip" country iso_code | awk -F'"' '{print \$2}' | tr -d '\n')
+        echo "$line#$country_code" >> Fission_ip2cc.txt
+      done < Fission_ip.txt
