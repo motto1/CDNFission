@@ -17,11 +17,15 @@ jobs:
       run: |
          while IFS= read -r line
          do
-             if [[ ! $line == *"#CN"* ]]; then
-                  echo "$line" >> temp_file.txt
-             fi
+            if [[ ! $line == *"#CN" && ! $line == *"#GB" && ! $line == *"#US"* ]]; then
+              echo "${line%%#*}" >> Fission_ip.txt
+              echo "$line" >> temp_file.txt
+            fi
          done < Fission_ip2cc.txt
+
+          # 将临时文件内容写回原文件，并清空临时文件内容
          mv temp_file.txt Fission_ip2cc.txt
+          > temp_file.txt
     - name: 提交并推送更改
       run: |
         git config --local user.email "action@github.com"
