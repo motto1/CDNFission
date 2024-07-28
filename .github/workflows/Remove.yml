@@ -22,3 +22,14 @@ jobs:
              fi
          done < Fission_ip2cc.txt
          mv temp_file.txt Fission_ip2cc.txt
+    - name: 提交并推送更改
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add Fission_cf.txt Fission_ip.txt Fission_ip2cc.txt Fission_domain.txt Fission_domain_http.txt Fission_domain_https.txt
+        git commit -m "🚀 更新完成于 $(date "+%Y/%m/%d %H:%M:%S")"
+        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
