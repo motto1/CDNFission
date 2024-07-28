@@ -10,7 +10,6 @@ from urllib3.util.retry import Retry
 from lxml import etree
 from fake_useragent import UserAgent
 import requests
-import geoip2.database
 
 # 配置日志记录
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -29,9 +28,6 @@ MAX_WORKERS_DNS = 50       # 并发DNS查询数量
 
 # 生成随机User-Agent
 ua = UserAgent()
-
-# GeoLite2数据库路径
-GEOIP_DB_PATH = "GeoLite2-Country.mmdb"
 
 # 网站配置
 SITES_CONFIG = {
@@ -117,23 +113,6 @@ def dns_lookup(domain):
     result = subprocess.run(["nslookup", domain], capture_output=True, text=True)
     return domain, result.stdout
 
-def filter_non_chinese_ips(ip_addresses):
-    reader = geoip2.database.Reader(GEOIP_DB_PATH)
-    non_chinese_ips = []
-
-    for ip in ip_addresses:
-        try:
-            response = reader.country(ip)
-            if response.country.iso_code != "CN":
-                non_chinese_ips.append(ip)
-        except geoip2.errors.AddressNotFoundError:
-            non_chinese_ips.append(ip)
-        except Exception as e:
-            logging.error(f"Error checking IP {ip}: {e}")
-
-    reader.close()
-    return non_chinese_ips
-
 def perform_dns_lookups(domain_filename, result_filename, unique_ipv4_filename):
     try:
         with open(domain_filename, 'r') as file:
@@ -163,7 +142,6 @@ def perform_dns_lookups(domain_filename, result_filename, unique_ipv4_filename):
                 continue
         
         filtered_ipv4_addresses.update(exist_list)
-        filtered_ipv4_addresses = filter_non_chinese_ips(filtered_ipv4_addresses)
 
         with open(unique_ipv4_filename, 'w') as output_file:
             for address in filtered_ipv4_addresses:
