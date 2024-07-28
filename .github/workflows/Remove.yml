@@ -13,12 +13,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       
-- name: 生成 IP 地址对应国家代码
-  run: |
-      > Fission_ip2cc.txt
-      while IFS= read -r line
-      do
-        ip=$(echo "$line" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
-        country_code=$(mmdblookup --file GeoLite2-Country.mmdb --ip "$ip" country iso_code | awk -F'"' '{print \$2}' | tr -d '\n')
-        echo "$line#$country_code" >> Fission_ip2cc.txt
-      done < Fission_ip.txt
+    - name: 生成 IP 地址对应国家代码
+      run: |
+         while IFS= read -r line
+         do
+             if [[ ! $line == *"#CN"* ]]; then
+                  echo "$line" >> temp_file.txt
+             fi
+         done < Fission_ip2cc.txt
+         mv temp_file.txt Fission_ip2cc.txt
