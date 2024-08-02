@@ -3,7 +3,7 @@ name: cfddns上传
 on:
   push:
     paths:
-      - CDNFission/best443.csv  # 仅当该文件被更新时触发
+      - best443.csv  # 仅当该文件被更新时触发
 
 jobs:
   build:
