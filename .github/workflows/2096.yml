@@ -1,0 +1,31 @@
+name: cf2096上传
+
+on:
+  push:
+    paths:
+      - best2096.csv  # 仅当该文件被更新时触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests urllib3
+          
+      - name: 更新2096
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: python 2096upload.py  # 替换为你的 Python 脚本的路径
