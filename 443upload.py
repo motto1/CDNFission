@@ -20,7 +20,7 @@ headers = {
 github_repo_api_url = 'https://api.github.com/repos/motto1/CDNFission/contents/'
 
 # 要下载的文件名
-file_name = 'jp.csv'
+file_name = 'best443.csv'
 
 # GitHub Personal Access Token (PAT)
 github_token = os.getenv('GH_TOKEN')
