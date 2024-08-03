@@ -17,10 +17,11 @@ jobs:
       run: curl -I https://vless.fxxk.dedyn.io/auto  # 获取头信息以检查URL是否可访问
 
     - name: Download file from URL
-      run: curl -o fxxk.yaml https://vless.fxxk.dedyn.io/auto
+      run: curl -L -o fxxk.yaml https://vless.fxxk.dedyn.io/auto  # 使用 -L 选项跟踪重定向
 
     - name: Debug - Check file content
       run: cat fxxk.yaml  # 输出文件内容以检查是否下载成功
+
 
     - name: 提交并推送更改
       run: |
