@@ -1,1 +1,28 @@
+name: Update fxxk.yaml
 
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天凌晨 00:00 运行
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  update-file:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Download file from URL
+      run: curl -o fxxk.yaml https://vless.fxxk.dedyn.io/auto
+
+    - name: 提交并推送更改
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add fxxk.yaml
+        git commit -m "Update fxxk.yaml"
+        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{github.repository}}.git
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
