@@ -14,14 +14,29 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Debug - Check URL
-      run: curl -I https://vless.fxxk.dedyn.io/auto  # 获取头信息以检查URL是否可访问
+      run: |
+        curl -I https://vless.fxxk.dedyn.io/auto  # 获取头信息以检查URL是否可访问
 
     - name: Download file from URL
-      run: curl -L -o fxxk.yaml https://vless.fxxk.dedyn.io/auto  # 使用 -L 选项跟踪重定向
+      run: |
+        curl -L -o fxxk.yaml -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7" \
+                            -H "Accept-Encoding: gzip, deflate, br, zstd" \
+                            -H "Accept-Language: zh-CN,zh;q=0.9,zh-TW;q=0.8" \
+                            -H "Cache-Control: no-cache" \
+                            -H "Pragma: no-cache" \
+                            -H "Sec-Ch-Ua: \"Chromium\";v=\"122\", \"Not(A:Brand\";v=\"24\", \"Google Chrome\";v=\"122\"" \
+                            -H "Sec-Ch-Ua-Mobile: ?0" \
+                            -H "Sec-Ch-Ua-Platform: \"Windows\"" \
+                            -H "Sec-Fetch-Dest: document" \
+                            -H "Sec-Fetch-Mode: navigate" \
+                            -H "Sec-Fetch-Site: none" \
+                            -H "Sec-Fetch-User: ?1" \
+                            -H "Upgrade-Insecure-Requests: 1" \
+                            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" \
+                            https://vless.fxxk.dedyn.io/auto
 
     - name: Debug - Check file content
       run: cat fxxk.yaml  # 输出文件内容以检查是否下载成功
-
 
     - name: 提交并推送更改
       run: |
@@ -29,7 +44,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git add fxxk.yaml
         git commit -m "Update fxxk.yaml"
-        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{github.repository}}.git
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{github.repository}}.git
         git push
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
