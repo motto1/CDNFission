@@ -3,7 +3,7 @@ name: cf cn上传
 on:
   push:
     paths:
-      - cn.csv  # 仅当该文件被更新时触发
+      - CN.csv  # 仅当该文件被更新时触发
 
 jobs:
   build:
