@@ -1,0 +1,52 @@
+name: Update duck DNS
+
+on:
+  push:
+    paths:
+      - duck.txt
+
+jobs:
+  update_dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Extract IP and Update Cloudflare
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+        run: |
+          IP=$(cat duck.txt)
+          echo "Updating Cloudflare DNS with IP: $IP"
+
+          # Check if the DNS record already exists
+          RECORD_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records?name=duck.mottos.us.kg" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" | jq -r '.result[0].id')
+
+          if [ "$RECORD_ID" != "null" ]; then
+            # Update existing record
+            echo "Updating existing DNS record with ID: $RECORD_ID"
+            RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records/$RECORD_ID" \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data "{\"type\":\"A\",\"name\":\"duck.mottos.us.kg\",\"content\":\"$IP\",\"ttl\":120}")
+            echo "Update response: $RESPONSE"
+          else
+            # Create new record
+            echo "Creating new DNS record"
+            RESPONSE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records" \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data "{\"type\":\"A\",\"name\":\"duck.mottos.us.kg\",\"content\":\"$IP\",\"ttl\":120}")
+            echo "Create response: $RESPONSE"
+          fi
+
+          # Check if the response indicates success
+          if echo "$RESPONSE" | grep -q '"success":true'; then
+            echo "Successfully updated Cloudflare DNS"
+          else
+            echo "Failed to update Cloudflare DNS"
+            exit 1
+          fi
