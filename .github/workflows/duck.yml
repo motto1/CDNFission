@@ -1,4 +1,4 @@
-name: Update Cloudflare DNS
+name: Update duck DNS
 
 on:
   push:
