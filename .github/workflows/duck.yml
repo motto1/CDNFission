@@ -1,6 +1,7 @@
 name: Update duck DNS
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - duck.txt
