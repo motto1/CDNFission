@@ -16,7 +16,7 @@ jobs:
       - name: Extract IP and Update Cloudflare
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE2_ID }}
         run: |
           IP=$(cat duck.txt)
           echo "Updating Cloudflare DNS with IP: $IP"
